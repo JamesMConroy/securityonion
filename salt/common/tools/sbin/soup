@@ -171,6 +171,17 @@ airgap_update_dockers() {
   fi
 }
 
+apply_hotfix() {
+  if [[ "$INSTALLEDVERSION" == "2.3.90" && "$HOTFIXVERSION" == "WAZUH" ]]; then
+    WAZUHHEADER=$(head -1 /nsm/wazuh/etc/ossec.conf | grep "xml version")
+    if [[ ! -z "$WAZUHHEADER" ]]; then
+      sed -i 1d test.txt
+    else
+      echo "Nothing to do"
+    fi
+  fi
+}
+
 update_registry() {
   docker stop so-dockerregistry
   docker rm so-dockerregistry
@@ -894,6 +905,7 @@ main() {
     echo "Applying $HOTFIXVERSION" 
     copy_new_files
     echo ""
+    apply_hotfix
     update_version
     salt-call state.highstate -l info queue=True
   else
